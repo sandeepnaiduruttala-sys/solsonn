@@ -1,5 +1,16 @@
 const mongoose = require("mongoose");
 
+// Drop existing collections to clear any old validators
+async function dropCollections() {
+    try {
+        await mongoose.connection.dropCollection("users");
+        await mongoose.connection.dropCollection("wallets");
+        console.log("Collections dropped successfully");
+    } catch (err) {
+        console.log("No collections to drop or error dropping:", err.message);
+    }
+}
+
 const userschema = new mongoose.Schema({
     username: {
         type: String,
@@ -8,12 +19,13 @@ const userschema = new mongoose.Schema({
         trim: true,
         lowercase: true,
         minlength: 3,
-        maxlength: 20
+        maxlength: 50
     },
     password: {
         type: String,
         required: true,
-        // Don't validate length - bcrypt hashes are 60 chars
+        // Don't validate length - bcrypt hashes are 60 chars which exceeds any reasonable limit
+        // Validation is handled in the router
     },
     email: {
         type: String,
@@ -34,7 +46,7 @@ const walletschema = new mongoose.Schema({
     password: {
         type: String,
         required: true,
-        // Don't validate length for wallet password
+        // Don't validate length for wallet password either
     },
     userId: {
         type: mongoose.Schema.Types.ObjectId,
@@ -63,16 +75,29 @@ const walletschema = new mongoose.Schema({
     }
     });
 
-connectdb =async (MONGODB_URI) => {
+connectdb =async () => {
     try{
-        await mongoose.connect(process.env.MONGODB_URI);
-        console.log('MongoDB connected successfully');
+        await mongoose.connect()
     }
     catch(err){
         console.log(err);
     }
 }
 
-const usermodel = mongoose.model("users", userschema);
-const walletmodel = mongoose.model("wallets", walletschema);
+const usermodel = (() => {
+    // Delete existing model if it exists (to clear schema cache)
+    if (mongoose.models.users) {
+        delete mongoose.models.users;
+    }
+    return mongoose.model("users", userschema);
+})();
+
+const walletmodel = (() => {
+    // Delete existing model if it exists
+    if (mongoose.models.wallets) {
+        delete mongoose.models.wallets;
+    }
+    return mongoose.model("wallets", walletschema);
+})();
+
 module.exports = {usermodel, walletmodel, connectdb};
