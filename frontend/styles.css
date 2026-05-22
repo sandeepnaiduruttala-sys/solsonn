@@ -245,3 +245,148 @@ footer {
         grid-template-columns: 1fr;
     }
 }
+
+/* Wallet Details Styles */
+.wallet-details-container {
+    background: #f8f9fa;
+    padding: 30px;
+    border-radius: 8px;
+    border-left: 4px solid #667eea;
+}
+
+.wallet-info {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.detail-item {
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.detail-item:last-child {
+    border-bottom: none;
+}
+
+.detail-item label {
+    display: block;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.detail-item p {
+    background: #f8f9fa;
+    padding: 12px;
+    border-radius: 5px;
+    word-break: break-all;
+    color: #555;
+    margin-bottom: 10px;
+    margin-top: 0;
+}
+
+.detail-item .monospace {
+    font-family: 'Courier New', monospace;
+    font-size: 0.95em;
+}
+
+.btn-small {
+    padding: 8px 15px;
+    font-size: 0.9em;
+    background: #667eea;
+    color: white;
+    margin-top: 5px;
+}
+
+.btn-small:hover {
+    background: #764ba2;
+}
+
+/* Modal Styles */
+.modal {
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background-color: white;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 5px 30px rgba(0, 0, 0, 0.3);
+    max-width: 500px;
+    width: 90%;
+    position: relative;
+}
+
+.close {
+    position: absolute;
+    right: 20px;
+    top: 15px;
+    font-size: 28px;
+    font-weight: bold;
+    color: #aaa;
+    cursor: pointer;
+}
+
+.close:hover {
+    color: #000;
+}
+
+.modal h3 {
+    color: #667eea;
+    margin-bottom: 20px;
+}
+
+.key-display {
+    margin-top: 20px;
+}
+
+.key-display textarea {
+    width: 100%;
+    height: 200px;
+    padding: 12px;
+    border: 2px solid #eee;
+    border-radius: 5px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+    resize: vertical;
+    word-break: break-all;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+}
+
+.logout-btn {
+    color: white !important;
+}
+
+/* Network Select Styles */
+.network-select {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #eee;
+    border-radius: 5px;
+    font-size: 1em;
+    background: white;
+    color: #333;
+    cursor: pointer;
+    transition: border-color 0.3s ease;
+}
+
+.network-select:hover {
+    border-color: #667eea;
+}
+
+.network-select:focus {
+    outline: none;
+    border-color: #667eea;
+}

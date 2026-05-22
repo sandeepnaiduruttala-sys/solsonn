@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+c<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -19,6 +19,7 @@
             <button class="nav-btn" data-tab="login">Login</button>
             <button class="nav-btn" data-tab="balance">Balance</button>
             <button class="nav-btn" data-tab="wallet">Create Wallet</button>
+            <button class="nav-btn" data-tab="wallet-details" style="display: none;">Wallet Details</button>
             <button id="logoutBtn" class="nav-btn logout-btn" style="display: none; background-color: #ff4444; margin-left: auto;">Logout</button>
         </nav>
 
@@ -108,6 +109,71 @@
                 <button type="submit" class="btn btn-primary">Create Wallet</button>
             </form>
             <div id="walletMessage" class="message"></div>
+        </section>
+
+        <!-- Wallet Details Tab -->
+        <section id="wallet-details" class="tab-content">
+            <h2>Your Wallet Details</h2>
+            <div id="walletDetailsContainer" class="wallet-details-container">
+                <div id="walletInfo" class="wallet-info">
+                    <div class="detail-item">
+                        <label>Wallet Name:</label>
+                        <p id="detailWalletName"></p>
+                    </div>
+                    <div class="detail-item">
+                        <label>Public Key:</label>
+                        <p id="detailPublicKey" class="monospace"></p>
+                        <button type="button" class="btn btn-small" onclick="copyToClipboard('detailPublicKey')">Copy</button>
+                    </div>
+                    <div class="detail-item">
+                        <label>Network:</label>
+                        <select id="networkSelect" onchange="refreshWalletBalance()" class="network-select">
+                            <option value="mainnet-beta">Mainnet</option>
+                            <option value="devnet">Devnet</option>
+                        </select>
+                    </div>
+                    <div class="detail-item">
+                        <label>Balance: <span id="networkInfo"></span></label>
+                        <p id="detailBalance"><span id="balanceValue">-</span> SOL</p>
+                        <button type="button" class="btn btn-small" onclick="refreshWalletBalance()">Refresh Balance</button>
+                    </div>
+                    <div class="detail-item">
+                        <label>Seed Phrase:</label>
+                        <button type="button" class="btn btn-primary" onclick="showSeedPhrasePW()">View Seed Phrase</button>
+                    </div>
+                    <div class="detail-item">
+                        <label>Private Key:</label>
+                        <button type="button" class="btn btn-primary" onclick="showPrivateKeyPW()">View Private Key</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Password Modal for Private Key -->
+            <div id="passwordModal" class="modal" style="display: none;">
+                <div class="modal-content">
+                    <span class="close" onclick="closePasswordModal()">&times;</span>
+                    <h3 id="modalTitle">Enter Wallet Password</h3>
+                    <div class="form">
+                        <div class="form-group">
+                            <label for="pwInput">Wallet Password:</label>
+                            <input type="password" id="pwInput" placeholder="Enter your wallet password" required>
+                        </div>
+                        <button type="button" class="btn btn-primary" onclick="decryptAndShow()">Unlock</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Display Modal for Keys -->
+            <div id="keyDisplayModal" class="modal" style="display: none;">
+                <div class="modal-content">
+                    <span class="close" onclick="closeKeyModal()">&times;</span>
+                    <h3 id="keyModalTitle"></h3>
+                    <div class="key-display">
+                        <textarea id="keyTextarea" readonly></textarea>
+                        <button type="button" class="btn btn-small" onclick="copyKeyToClipboard()">Copy to Clipboard</button>
+                    </div>
+                </div>
+            </div>
         </section>
     </div>
 

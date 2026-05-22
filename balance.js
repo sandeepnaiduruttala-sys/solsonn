@@ -1,5 +1,5 @@
 const { PublicKey, LAMPORTS_PER_SOL } = require('@solana/web3.js');
-const connection = require('./connection');
+const { connection } = require('./connection');
 
 const getBalance = async (publicKeyString) => {
     try {

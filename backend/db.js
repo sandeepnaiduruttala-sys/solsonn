@@ -65,6 +65,10 @@ const walletschema = new mongoose.Schema({
         trim: true,
         lowercase: true
     },
+    encryptedSeedPhrase: {
+        type: String,
+        required: true
+    },
     balance: {
         type: Number,
         default: 0

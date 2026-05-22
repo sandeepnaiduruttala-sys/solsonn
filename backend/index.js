@@ -54,7 +54,7 @@ app.use((req, res) => {
 
 // Start server
 app.listen(PORT, async () => {
-    const dbConnected = await connectDB();
+    const dbConnected = await connectDB(process.env.MONGODB_URI);
     if (dbConnected) {
         console.log("Connected to MongoDB and Solana successfully");
         console.log(`Server running on http://localhost:${PORT}`);
