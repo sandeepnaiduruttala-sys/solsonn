@@ -26,13 +26,29 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(publicDir, 'index.html'));
 });
 
-// Start server
-app.listen(PORT, async () => {
-    const dbConnected = await connectDB(process.env.MONGODB_URI);
-    if (dbConnected) {
-        console.log("Connected to MongoDB and Solana successfully");
-        console.log(`Server running on http://localhost:${PORT}`);
-    } else {
-        console.log("Database connection failed, but server is running");
-    }
+// Error handling middleware
+app.use((err, req, res, next) => {
+    console.error('Server error:', err);
+    res.status(err.status || 500).json({
+        message: err.message || 'Internal Server Error'
+    });
 });
+
+// Only listen if running as main module (local development)
+if (require.main === module) {
+    app.listen(PORT, async () => {
+        try {
+            const dbConnected = await connectDB(process.env.MONGODB_URI);
+            if (dbConnected) {
+                console.log("Connected to MongoDB and Solana successfully");
+                console.log(`Server running on http://localhost:${PORT}`);
+            } else {
+                console.log("Database connection failed, but server is running");
+            }
+        } catch (error) {
+            console.error('Connection error:', error);
+        }
+    });
+}
+
+module.exports = app;

@@ -1,0 +1,39 @@
+{
+  "version": 2,
+  "env": [
+    "MONGODB_URI",
+    "JWT_SECRET",
+    "SOLANA_RPC_URL",
+    "SOLANA_NETWORK"
+  ],
+  "builds": [
+    {
+      "src": "api/index.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "public/**",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "api/index.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "public/$1"
+    },
+    {
+      "src": "/",
+      "dest": "public/index.html"
+    }
+  ],
+  "functions": {
+    "api/index.js": {
+      "maxDuration": 30,
+      "memory": 1024
+    }
+  }
+}

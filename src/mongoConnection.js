@@ -3,22 +3,36 @@ const mongoose = require('mongoose');
 
 const MONGODB_URI = process.env.MONGODB_URI;
 
+// Cache connection for serverless environments
+let cachedConnection = null;
+
 const connectDB = async () => {
     try {
-        // Disable SSL certificate validation temporarily for debugging (NOT for production)
+        // Return cached connection if already connected
+        if (cachedConnection && mongoose.connection.readyState === 1) {
+            console.log('Using cached MongoDB connection');
+            return true;
+        }
+
         const mongooseOptions = {
             serverSelectionTimeoutMS: 20000,
             socketTimeoutMS: 45000,
+            maxPoolSize: 5,
+            minPoolSize: 1,
         };
         
         await mongoose.connect(MONGODB_URI, mongooseOptions);
+        cachedConnection = mongoose.connection;
         console.log('MongoDB connected successfully');
         
-        // Drop old collections to clear validators
+        // Drop old collections to clear validators (only on first connection)
         try {
-            await mongoose.connection.dropCollection("users");
-            await mongoose.connection.dropCollection("wallets");
-            console.log("Old collections dropped to reset schema");
+            if (!cachedConnection.collectionDropped) {
+                await mongoose.connection.dropCollection("users");
+                await mongoose.connection.dropCollection("wallets");
+                cachedConnection.collectionDropped = true;
+                console.log("Old collections dropped to reset schema");
+            }
         } catch (err) {
             console.log("Collections already dropped or don't exist");
         }
@@ -33,7 +47,5 @@ const connectDB = async () => {
         return false;
     }
 };
-
-module.exports = connectDB;
 
 module.exports = connectDB;
