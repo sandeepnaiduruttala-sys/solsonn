@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const path = require('path');
+const mongoose = require('mongoose');
 
 console.log('API index.js loading...');
 console.log('NODE_ENV:', process.env.NODE_ENV);
@@ -93,7 +94,25 @@ app.get('/api/health', (req, res) => {
     res.status(200).json({ 
         status: 'ok',
         dbConnected: !dbError,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        mongodbUriSet: !!process.env.MONGODB_URI,
+        mongodbUriLength: process.env.MONGODB_URI ? process.env.MONGODB_URI.length : 0,
+        nodeEnv: process.env.NODE_ENV,
+        mongooseReadyState: mongoose.connection.readyState
+    });
+});
+
+// Debug endpoint to check environment
+app.get('/api/debug', (req, res) => {
+    res.status(200).json({
+        mongodbUriPresent: !!process.env.MONGODB_URI,
+        mongodbUriPrefix: process.env.MONGODB_URI ? process.env.MONGODB_URI.substring(0, 60) + '...' : 'NOT SET',
+        jwtSecretPresent: !!process.env.JWT_SECRET,
+        nodeEnv: process.env.NODE_ENV,
+        mongooseReadyState: mongoose.connection.readyState,
+        mongooseReadyStateDesc: ['disconnected', 'connected', 'connecting', 'disconnecting'][mongoose.connection.readyState],
+        dbError: dbError,
+        allEnvKeys: Object.keys(process.env).filter(k => !k.includes('SECRET') && !k.includes('PASS'))
     });
 });
 
