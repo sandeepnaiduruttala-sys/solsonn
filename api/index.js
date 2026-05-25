@@ -59,19 +59,29 @@ app.use(express.static(publicDir));
 // Database connection middleware (runs once per serverless container)
 let dbInitialized = false;
 let dbError = null;
+let lastConnectionAttempt = 0;
 
 app.use(async (req, res, next) => {
-    if (!dbInitialized) {
+    const now = Date.now();
+    // Try to connect if not initialized or if last attempt was more than 5 seconds ago
+    if (!dbInitialized || (lastConnectionAttempt && now - lastConnectionAttempt > 5000)) {
         try {
+            console.log('[API Middleware] Attempting database connection...');
             const connected = await connectDB();
-            dbInitialized = true;
-            if (!connected) {
+            lastConnectionAttempt = now;
+            
+            if (connected) {
+                dbInitialized = true;
+                dbError = null;
+                console.log('[API Middleware] ✓ Database connected');
+            } else {
                 dbError = 'MongoDB connection failed';
-                console.warn('Warning: Database connection failed, continuing anyway');
+                console.warn('[API Middleware] ⚠ Database connection failed, continuing without DB');
             }
         } catch (err) {
             dbError = err.message;
-            console.error('DB initialization error:', err);
+            console.error('[API Middleware] ✗ DB initialization error:', err);
+            lastConnectionAttempt = now;
             // Don't block requests, just warn
         }
     }
