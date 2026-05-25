@@ -1,11 +1,11 @@
 {
   "version": 2,
-  "env": [
-    "MONGODB_URI",
-    "JWT_SECRET",
-    "SOLANA_RPC_URL",
-    "SOLANA_NETWORK"
-  ],
+  "env": {
+    "MONGODB_URI": "MongoDB connection string",
+    "JWT_SECRET": "JWT secret key",
+    "SOLANA_RPC_URL": "Solana RPC endpoint",
+    "SOLANA_NETWORK": "Solana network name"
+  },
   "builds": [
     {
       "src": "api/index.js",
