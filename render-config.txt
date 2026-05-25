@@ -1,0 +1,25 @@
+# Render Deployment Option
+
+1. Go to https://render.com
+2. Sign up with GitHub
+3. Click "New" → "Web Service"
+4. Connect your GitHub repo: https://github.com/sandeepnaiduruttala-sys/solsonn
+5. Configure:
+   - Name: solson
+   - Root Directory: (leave empty)
+   - Build Command: npm install
+   - Start Command: node src/index.js
+6. Add Environment Variables:
+   - MONGODB_URI: mongodb+srv://sandeepnaiduruttala_db_user:sandeep12345@solson.5qh1dic.mongodb.net/?appName=solson
+   - JWT_SECRET: sandeep12345
+7. Click "Create Web Service"
+8. Deploy starts automatically!
+
+OR USE REPLIT (Easiest - 1 minute setup):
+
+1. Go to https://replit.com
+2. Click "Create" → "Import from GitHub"
+3. Paste: https://github.com/sandeepnaiduruttala-sys/solsonn
+4. Set environment variables
+5. Click "Run"
+6. Get instant live URL!
