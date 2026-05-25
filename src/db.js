@@ -44,14 +44,12 @@ const walletschema = new mongoose.Schema({
     walletpublickey: {
         type: String,
         required: true,
-        trim: true,
-        lowercase: true
+        trim: true
     },
     encryptedprivatekey: {
         type: String,
         required: true,
-        trim: true,
-        lowercase: true
+        trim: true
     },
     encryptedSeedPhrase: {
         type: String,

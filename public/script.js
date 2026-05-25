@@ -262,6 +262,13 @@ document.getElementById('walletForm').addEventListener('submit', async (e) => {
     
     try {
         const token = localStorage.getItem('token');
+        
+        if (!token) {
+            messageDiv.className = 'message error';
+            messageDiv.textContent = 'Error: Please login first to create a wallet';
+            return;
+        }
+        
         const response = await fetch('/api/v1/wallets/createwallet', {
             method: 'POST',
             headers: {
@@ -299,7 +306,24 @@ document.getElementById('walletForm').addEventListener('submit', async (e) => {
             }, 1000);
         } else {
             messageDiv.className = 'message error';
-            messageDiv.textContent = data.message || 'Wallet creation failed';
+            if (response.status === 401) {
+                messageDiv.textContent = 'Session expired: Please login again';
+                // Clear the invalid token
+                localStorage.removeItem('token');
+                // Redirect to login after a delay
+                setTimeout(() => {
+                    showAuthTabs();
+                    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    const loginBtn = document.querySelector('[data-tab="login"]');
+                    if (loginBtn) {
+                        loginBtn.classList.add('active');
+                        document.getElementById('login').classList.add('active');
+                    }
+                }, 2000);
+            } else {
+                messageDiv.textContent = data.message || 'Wallet creation failed';
+            }
         }
     } catch (error) {
         messageDiv.className = 'message error';
