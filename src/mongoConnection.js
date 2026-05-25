@@ -1,13 +1,18 @@
 require('dotenv').config();
 const mongoose = require('mongoose');
 
-const MONGODB_URI = process.env.MONGODB_URI;
-
 // Cache connection for serverless environments
 let cachedConnection = null;
 
 const connectDB = async () => {
     try {
+        const MONGODB_URI = process.env.MONGODB_URI;
+        
+        if (!MONGODB_URI) {
+            console.error('MongoDB URI not found in environment variables');
+            return false;
+        }
+        
         // Return cached connection if already connected
         if (cachedConnection && mongoose.connection.readyState === 1) {
             console.log('Using cached MongoDB connection');

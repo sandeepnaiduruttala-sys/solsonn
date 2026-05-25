@@ -28,7 +28,7 @@ let dbError = null;
 app.use(async (req, res, next) => {
     if (!dbInitialized) {
         try {
-            const connected = await connectDB(process.env.MONGODB_URI);
+            const connected = await connectDB();
             dbInitialized = true;
             if (!connected) {
                 dbError = 'MongoDB connection failed';
