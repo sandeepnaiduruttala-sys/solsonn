@@ -1,13 +1,48 @@
 require('dotenv').config();
 const express = require('express');
 const path = require('path');
-const connectDB = require('../src/mongoConnection');
-const { userRouter, walletRouter } = require('../src/router');
-const authMiddleware = require('../src/middleware');
-const balanceRouter = require('../src/balanceRouter');
+
+console.log('API index.js loading...');
+console.log('NODE_ENV:', process.env.NODE_ENV);
+console.log('MONGODB_URI present:', !!process.env.MONGODB_URI);
+console.log('JWT_SECRET present:', !!process.env.JWT_SECRET);
+
+let connectDB, userRouter, walletRouter, authMiddleware, balanceRouter;
+
+try {
+    connectDB = require('../src/mongoConnection');
+    console.log('✓ mongoConnection loaded');
+} catch (err) {
+    console.error('✗ Failed to load mongoConnection:', err.message);
+}
+
+try {
+    const routers = require('../src/router');
+    userRouter = routers.userRouter;
+    walletRouter = routers.walletRouter;
+    console.log('✓ routers loaded');
+} catch (err) {
+    console.error('✗ Failed to load routers:', err.message);
+}
+
+try {
+    authMiddleware = require('../src/middleware');
+    console.log('✓ middleware loaded');
+} catch (err) {
+    console.error('✗ Failed to load middleware:', err.message);
+}
+
+try {
+    balanceRouter = require('../src/balanceRouter');
+    console.log('✓ balanceRouter loaded');
+} catch (err) {
+    console.error('✗ Failed to load balanceRouter:', err.message);
+}
 
 const app = express();
 const publicDir = path.join(__dirname, '../public');
+
+console.log('Creating Express app...');
 
 // Middleware
 app.use(express.json({ limit: '50mb' }));
@@ -53,9 +88,9 @@ app.get('/api/health', (req, res) => {
 });
 
 // Routes
-app.use('/api/v1/users', userRouter);
-app.use('/api/v1/wallets', authMiddleware, walletRouter);
-app.use('/api/v1/balance', authMiddleware, balanceRouter);
+if (userRouter) app.use('/api/v1/users', userRouter);
+if (walletRouter) app.use('/api/v1/wallets', authMiddleware, walletRouter);
+if (balanceRouter) app.use('/api/v1/balance', authMiddleware, balanceRouter);
 
 // Serve frontend
 app.get('/', (req, res) => {
@@ -76,5 +111,7 @@ app.use((err, req, res, next) => {
         error: process.env.NODE_ENV === 'production' ? {} : err.message
     });
 });
+
+console.log('Express app created successfully');
 
 module.exports = app;
