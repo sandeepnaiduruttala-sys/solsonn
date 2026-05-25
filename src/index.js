@@ -14,6 +14,13 @@ const publicDir = path.join(__dirname, '../public');
 
 // Middleware
 app.use(express.json());
+
+// Set JSON response header for API routes only
+app.use('/api', (req, res, next) => {
+    res.setHeader('Content-Type', 'application/json');
+    next();
+});
+
 app.use(express.static(publicDir));
 
 // Routes

@@ -107,7 +107,15 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
             body: JSON.stringify({ username, email, password })
         });
         
-        const data = await response.json();
+        let data;
+        try {
+            data = await response.json();
+        } catch (parseError) {
+            messageDiv.className = 'message error';
+            messageDiv.textContent = 'Server error: Invalid response format. Please check your connection and try again.';
+            console.error('JSON parse error:', parseError);
+            return;
+        }
         
         if (response.ok) {
             messageDiv.className = 'message success';
@@ -152,7 +160,15 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
             body: JSON.stringify({ username, password })
         });
         
-        const data = await response.json();
+        let data;
+        try {
+            data = await response.json();
+        } catch (parseError) {
+            messageDiv.className = 'message error';
+            messageDiv.textContent = 'Server error: Invalid response format. Please check your connection and try again.';
+            console.error('JSON parse error:', parseError);
+            return;
+        }
         
         if (response.ok) {
             messageDiv.className = 'message success';
@@ -203,7 +219,15 @@ async function checkBalance() {
                 'Authorization': `Bearer ${token}`
             }
         });
-        const data = await response.json();
+        let data;
+        try {
+            data = await response.json();
+        } catch (parseError) {
+            resultDiv.className = 'balance-result error';
+            resultDiv.textContent = 'Server error: Invalid response format. Please check your connection and try again.';
+            console.error('JSON parse error:', parseError);
+            return;
+        }
         
         if (data.success) {
             resultDiv.className = 'balance-result success';
@@ -247,7 +271,15 @@ document.getElementById('walletForm').addEventListener('submit', async (e) => {
             body: JSON.stringify({ walletname, password })
         });
         
-        const data = await response.json();
+        let data;
+        try {
+            data = await response.json();
+        } catch (parseError) {
+            messageDiv.className = 'message error';
+            messageDiv.textContent = 'Server error: Invalid response format. Please check your connection and try again.';
+            console.error('JSON parse error:', parseError);
+            return;
+        }
         
         if (response.ok) {
             messageDiv.className = 'message success';
@@ -287,7 +319,13 @@ async function loadWalletDetails(walletName) {
             }
         });
         
-        const data = await response.json();
+        let data;
+        try {
+            data = await response.json();
+        } catch (parseError) {
+            console.error('JSON parse error in wallet details:', parseError);
+            return;
+        }
         
         if (response.ok) {
             const walletInfo = data.wallet;
@@ -325,7 +363,14 @@ async function refreshWalletBalance() {
             }
         });
         
-        const data = await response.json();
+        let data;
+        try {
+            data = await response.json();
+        } catch (parseError) {
+            document.getElementById('balanceValue').textContent = 'Error';
+            console.error('JSON parse error in balance:', parseError);
+            return;
+        }
         
         if (response.ok) {
             document.getElementById('balanceValue').textContent = data.balance.toFixed(4);
@@ -382,7 +427,14 @@ async function decryptAndShow() {
             body: JSON.stringify({ password })
         });
         
-        const data = await response.json();
+        let data;
+        try {
+            data = await response.json();
+        } catch (parseError) {
+            alert('Server error: Invalid response format. Please try again.');
+            console.error('JSON parse error in decrypt:', parseError);
+            return;
+        }
         
         if (response.ok) {
             closePasswordModal();
