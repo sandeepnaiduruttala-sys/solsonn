@@ -189,7 +189,20 @@ async function checkBalance() {
     }
     
     try {
-        const response = await fetch(`/api/v1/balance/balance/${address}`);
+        const token = localStorage.getItem('token');
+        if (!token) {
+            resultDiv.className = 'balance-result error';
+            resultDiv.textContent = 'Please login first to check balance';
+            return;
+        }
+        
+        const response = await fetch(`/api/v1/balance/balance/${address}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
         const data = await response.json();
         
         if (data.success) {
