@@ -69,38 +69,68 @@ userRouter.post('/login', async (req, res) => {
     }
 });
 walletRouter.post('/createwallet', authmiddleware, async (req, res) => {
-    const {walletname, password} = req.body;
-    const walletexists = await walletmodel.findOne({userId: req.user._id});
-    if(walletexists){
-        return res.json({message: 'wallet opened successfully'});
-    }
-    else{
+    try {
+        const {walletname, password} = req.body;
+        
+        if (!password) {
+            return res.status(400).json({message: 'Wallet password is required'});
+        }
+        
+        const walletexists = await walletmodel.findOne({userId: req.user._id});
+        if(walletexists){
+            return res.json({message: 'wallet opened successfully', wallet: {publicKey: walletexists.walletpublickey}});
+        }
+        
         try {
             const { Keypair } = require('@solana/web3.js');
             const bip39 = require('bip39');
+            
+            // Generate new keypair
             const newwallet = Keypair.generate();
             const walletpublickey = newwallet.publicKey.toString();
             const walletprivatekey = newwallet.secretKey.toString();
             const secretkeyArray = Array.from(newwallet.secretKey);
             const secretekey = JSON.stringify(secretkeyArray);
+            
+            // Encrypt private key with wallet password
             const encryptedprivatekey = cryptojs.AES.encrypt(walletprivatekey, password).toString();
             
-            // Generate seed phrase
+            // Generate and encrypt seed phrase
             const seedPhrase = bip39.generateMnemonic();
             const encryptedSeedPhrase = cryptojs.AES.encrypt(seedPhrase, password).toString();
             
+            // Save wallet to database
             const createdwallet = await walletmodel.create({
-                walletname: walletname,
+                walletname: walletname || 'My Wallet',
                 password: password,
                 userId: req.user._id,
                 walletpublickey: walletpublickey,
                 encryptedprivatekey: encryptedprivatekey,
                 encryptedSeedPhrase: encryptedSeedPhrase,
             });
-            res.json({message: 'wallet created successfully', wallet: {publicKey: walletpublickey, seedPhrase: seedPhrase}});
+            
+            console.log('Wallet created successfully for user:', req.user.username);
+            res.json({
+                message: 'wallet created successfully', 
+                wallet: {
+                    publicKey: walletpublickey, 
+                    seedPhrase: seedPhrase
+                }
+            });
         } catch (error) {
-            res.status(500).json({message: 'Error creating wallet', error: error.message});
+            console.error('Wallet creation error:', error);
+            res.status(500).json({
+                message: 'Error creating wallet', 
+                error: error.message,
+                details: error.stack
+            });
         }
+    } catch (error) {
+        console.error('Wallet endpoint error:', error);
+        res.status(500).json({
+            message: 'Unexpected error',
+            error: error.message
+        });
     }
 });
 
@@ -217,18 +247,26 @@ walletRouter.get('/wallet-balance', authmiddleware, async (req, res) => {
     try {
         const network = req.query.network || 'mainnet-beta';
         const wallet = await walletmodel.findOne({userId: req.user._id});
+        
         if (!wallet) {
             return res.status(400).json({message: 'Wallet not found'});
         }
         
-        const { getConnection } = require('./connection');
-        const { PublicKey } = require('@solana/web3.js');
-        
         try {
+            const { getConnection } = require('./connection');
+            const { PublicKey } = require('@solana/web3.js');
+            
+            console.log(`[Wallet Balance] Fetching balance for network: ${network}`);
+            
             const connection = getConnection(network);
             const publicKey = new PublicKey(wallet.walletpublickey);
+            
+            console.log(`[Wallet Balance] Getting balance for address: ${wallet.walletpublickey}`);
+            
             const balance = await connection.getBalance(publicKey);
             const solBalance = balance / 1e9; // Convert lamports to SOL
+            
+            console.log(`[Wallet Balance] Balance retrieved: ${solBalance} SOL`);
             
             res.json({
                 message: 'Balance retrieved',
@@ -239,12 +277,21 @@ walletRouter.get('/wallet-balance', authmiddleware, async (req, res) => {
                 network: network
             });
         } catch (connError) {
-            console.error('Connection error:', connError);
-            res.status(500).json({message: 'Error connecting to blockchain network', error: connError.message});
+            console.error('[Wallet Balance] Connection error:', connError);
+            res.status(500).json({
+                message: 'Error connecting to blockchain network', 
+                error: connError.message,
+                network: network,
+                details: connError.toString()
+            });
         }
     } catch (error) {
-        console.error('Wallet balance error:', error);
-        res.status(500).json({message: 'Error retrieving balance', error: error.message});
+        console.error('[Wallet Balance] Error:', error);
+        res.status(500).json({
+            message: 'Error retrieving balance', 
+            error: error.message,
+            stack: error.stack
+        });
     }
 });
 
