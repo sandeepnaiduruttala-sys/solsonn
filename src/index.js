@@ -23,6 +23,29 @@ app.use('/api', (req, res, next) => {
 
 app.use(express.static(publicDir));
 
+// Health check endpoint (for Vercel and monitoring)
+let dbConnected = false;
+app.get('/api/health', (req, res) => {
+    res.status(200).json({ 
+        status: 'ok',
+        dbConnected: dbConnected,
+        timestamp: new Date().toISOString(),
+        mongodbUriSet: !!process.env.MONGODB_URI,
+        nodeEnv: process.env.NODE_ENV
+    });
+});
+
+// Debug endpoint
+app.get('/api/debug', (req, res) => {
+    res.status(200).json({
+        mongodbUriPresent: !!process.env.MONGODB_URI,
+        mongodbUriPrefix: process.env.MONGODB_URI ? process.env.MONGODB_URI.substring(0, 60) + '...' : 'NOT SET',
+        jwtSecretPresent: !!process.env.JWT_SECRET,
+        nodeEnv: process.env.NODE_ENV,
+        dbConnected: dbConnected
+    });
+});
+
 // Routes
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/wallets', authMiddleware, walletRouter);
@@ -45,8 +68,9 @@ app.use((err, req, res, next) => {
 if (require.main === module) {
     app.listen(PORT, async () => {
         try {
-            const dbConnected = await connectDB();
-            if (dbConnected) {
+            const connected = await connectDB();
+            dbConnected = connected;
+            if (connected) {
                 console.log("Connected to MongoDB and Solana successfully");
                 console.log(`Server running on http://localhost:${PORT}`);
             } else {

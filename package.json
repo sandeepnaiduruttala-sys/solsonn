@@ -5,7 +5,9 @@
   "main": "src/index.js",
   "scripts": {
     "start": "node ./src/index.js",
-    "dev": "nodemon ./src/index.js"
+    "dev": "nodemon ./src/index.js",
+    "build": "echo 'Build step - installing dependencies'",
+    "vercel-build": "echo 'Vercel build complete'"
   },
   "dependencies": {
     "@solana/web3.js": "^1.98.4",
